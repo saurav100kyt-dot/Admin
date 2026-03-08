@@ -1,0 +1,188 @@
+<!DOCTYPE html>  <html lang="en">  
+<head>  <meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>ZEXI BOT PRO PANEL</title>  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500&display=swap" rel="stylesheet">  <style>  
+  
+body{  
+background:#050505;  
+color:white;  
+font-family:'Rajdhani';  
+margin:0;  
+}  
+  
+.header{  
+padding:15px;  
+background:#0b0b0b;  
+border-bottom:1px solid #222;  
+font-family:'Orbitron';  
+color:#ffcc00;  
+text-align:center;  
+}  
+  
+.container{  
+max-width:500px;  
+margin:auto;  
+padding:15px;  
+}  
+  
+.card{  
+background:#111;  
+border:1px solid #222;  
+border-radius:10px;  
+padding:15px;  
+margin-bottom:10px;  
+}  
+  
+.row{  
+display:flex;  
+justify-content:space-between;  
+margin-bottom:5px;  
+}  
+  
+.btns{  
+display:flex;  
+gap:10px;  
+margin-top:10px;  
+}  
+  
+button{  
+padding:10px 15px;  
+border:none;  
+border-radius:6px;  
+cursor:pointer;  
+font-weight:600;  
+}  
+  
+.approve{  
+background:#00c853;  
+color:white;  
+}  
+  
+.cancel{  
+background:#ff3d00;  
+color:white;  
+}  
+  
+.status{  
+margin-top:6px;  
+font-size:12px;  
+color:#aaa;  
+}  
+  
+</style>  </head>  <body>  <div class="header">  👑 ZEXI BOT PRO ADMIN
+
+</div>  <div class="container">  <div id="stats" class="card">  Loading stats...
+
+</div>  <div id="requests"></div>  </div>  <script type="module">  
+  
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";  
+  
+import {  
+getFirestore,  
+collection,  
+getDocs,  
+updateDoc,  
+doc,  
+onSnapshot  
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";  
+  
+const firebaseConfig = {  
+  
+apiKey: "AIzaSyCvMVx_geWeeiNgw0ziSR80mvncHlOwKQY",  
+  
+authDomain: "zexi-bot.firebaseapp.com",  
+  
+projectId: "zexi-bot",  
+  
+storageBucket: "zexi-bot.firebasestorage.app",  
+  
+messagingSenderId: "245993811972",  
+  
+appId: "1:245993811972:web:e25ed7ef03d118a4fd8551"  
+  
+};  
+  
+const app = initializeApp(firebaseConfig);  
+  
+const db = getFirestore(app);  
+  
+const requestsDiv=document.getElementById("requests");  
+  
+const statsDiv=document.getElementById("stats");  
+  
+onSnapshot(collection(db,"payments"),(snapshot)=>{  
+  
+requestsDiv.innerHTML="";  
+  
+let total=0;  
+  
+let pending=0;  
+  
+let approved=0;  
+  
+snapshot.forEach((docSnap)=>{  
+  
+let data=docSnap.data();  
+  
+total++;  
+  
+if(data.status==="Pending") pending++;  
+  
+if(data.status==="Approved") approved++;  
+  
+let div=document.createElement("div");  
+  
+div.className="card";  
+  
+div.innerHTML=`  
+  
+<div class="row"><span>Plan</span><span>${data.plan}</span></div>  
+  
+<div class="row"><span>Amount</span><span>₹${data.amount}</span></div>  
+  
+<div class="row"><span>UTR</span><span>${data.utr}</span></div>  
+  
+<div class="status">Status : ${data.status}</div>  
+  
+<div class="btns">  
+  
+<button class="approve" onclick="approve('${docSnap.id}')">Approve</button>  
+  
+<button class="cancel" onclick="cancel('${docSnap.id}')">Cancel</button>  
+  
+</div>  
+  
+`;  
+  
+requestsDiv.appendChild(div);  
+  
+});  
+  
+statsDiv.innerHTML=`  
+  
+<div>Total Requests : ${total}</div>  
+  
+<div>Pending : ${pending}</div>  
+  
+<div>Approved : ${approved}</div>  
+  
+`;  
+  
+});  
+  
+window.approve=async(id)=>{  
+  
+const ref=doc(db,"payments",id);  
+  
+await updateDoc(ref,{status:"Approved"});  
+  
+};  
+  
+window.cancel=async(id)=>{  
+  
+const ref=doc(db,"payments",id);  
+  
+await updateDoc(ref,{status:"Cancelled"});  
+  
+};  
+  
+</script>  </body>  </html>
