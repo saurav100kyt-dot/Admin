@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZEXI BOT ADMIN PANEL</title><style>
+<title>ZEXI BOT ADMIN</title><style>
 
 body{
 background:#0a0a0a;
@@ -20,15 +20,15 @@ margin-bottom:20px;
 display:flex;
 gap:15px;
 justify-content:center;
-margin-bottom:25px;
 flex-wrap:wrap;
+margin-bottom:25px;
 }
 
 .stat{
 background:#111;
+border:1px solid #222;
 padding:15px;
 border-radius:10px;
-border:1px solid #222;
 min-width:150px;
 text-align:center;
 }
@@ -39,9 +39,9 @@ margin-top:25px;
 
 .card{
 background:#111;
-padding:15px;
-border-radius:10px;
 border:1px solid #222;
+border-radius:10px;
+padding:15px;
 margin-bottom:10px;
 }
 
@@ -56,8 +56,8 @@ margin-top:6px;
 .add{background:#16a34a;color:white}
 .minus{background:#f59e0b;color:white}
 .approve{background:#2563eb;color:white}
-.delete{background:#dc2626;color:white}
 .cancel{background:#ef4444;color:white}
+.delete{background:#dc2626;color:white}
 
 input{
 padding:6px;
@@ -77,7 +77,7 @@ Online Users
 <br>
 <span id="onlineUsers">0</span>
 </div><div class="stat">
-Total Revenue
+Revenue
 <br>
 <span id="totalRevenue">₹0</span>
 </div></div><div class="section">
@@ -123,7 +123,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-
 /* LIVE USER MONITOR */
 
 function monitorUsers(){
@@ -154,7 +153,7 @@ document.getElementById("onlineUsers").innerText = onlineUsers;
 
 
 
-/* TOTAL REVENUE */
+/* REVENUE */
 
 async function loadRevenue(){
 
@@ -166,7 +165,7 @@ snap.forEach((doc)=>{
 
 const data = doc.data();
 
-if(data.status === "approved"){
+if(data.status==="approved"){
 revenue += Number(data.amount || 0);
 }
 
@@ -178,7 +177,7 @@ document.getElementById("totalRevenue").innerText="₹"+revenue;
 
 
 
-/* LOAD USERS */
+/* USERS */
 
 async function loadUsers(){
 
@@ -308,7 +307,7 @@ loadUsers();
 
 
 
-/* LOAD PAYMENTS */
+/* PAYMENTS */
 
 async function loadPayments(){
 
@@ -350,6 +349,11 @@ onclick="cancelPayment('${docSnap.id}')">
 Cancel
 </button>
 
+<button class="delete"
+onclick="deletePayment('${docSnap.id}')">
+Delete
+</button>
+
 `;
 
 container.appendChild(div);
@@ -360,7 +364,7 @@ container.appendChild(div);
 
 
 
-/* APPROVE PAYMENT */
+/* APPROVE */
 
 window.approve = async function(paymentId,userId,credits){
 
@@ -396,7 +400,7 @@ loadRevenue();
 
 
 
-/* CANCEL PAYMENT */
+/* CANCEL */
 
 window.cancelPayment = async function(paymentId){
 
@@ -412,7 +416,23 @@ loadPayments();
 
 
 
-/* USER HISTORY */
+/* DELETE PAYMENT */
+
+window.deletePayment = async function(paymentId){
+
+if(!confirm("Delete this payment?")) return;
+
+await deleteDoc(doc(db,"payments",paymentId));
+
+alert("Payment Deleted");
+
+loadPayments();
+
+}
+
+
+
+/* HISTORY */
 
 window.viewHistory = async function(userId){
 
@@ -453,7 +473,7 @@ container.appendChild(div);
 
 
 
-/* INITIAL LOAD */
+/* LOAD */
 
 monitorUsers();
 loadUsers();
